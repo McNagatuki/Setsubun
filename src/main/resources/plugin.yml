@@ -5,3 +5,12 @@ api-version: 1.15
 authors: [ Nagatuki ]
 description: Setsubun Plugin
 website: https://github.com/McNagatuki/Setsubun
+
+commands:
+  setsubun:
+    description: setsubun plugin
+    permission: setsubun
+
+permissions:
+  setsubun:
+    default: op
