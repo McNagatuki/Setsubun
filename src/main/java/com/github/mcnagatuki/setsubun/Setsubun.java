@@ -6,12 +6,15 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -26,7 +29,6 @@ public final class Setsubun extends JavaPlugin implements Listener {
     public Player gameMaster;
     public int mameAmount = 64;
 
-
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -35,6 +37,27 @@ public final class Setsubun extends JavaPlugin implements Listener {
         this.getCommand("setsubun").setExecutor(new CommandManager());
     }
 
+    // 豆の投射
+    @EventHandler
+    public void onSnowballShoot(ProjectileLaunchEvent event) {
+        // 投げられたのは雪玉か確認
+        Entity entity = event.getEntity();
+        if (entity.getType() != EntityType.SNOWBALL) return;
+        if (!(entity instanceof Snowball)) return;
+        Snowball mame = (Snowball) entity;
+
+        // 投げられたのが豆かどうか確認
+        ProjectileSource source = mame.getShooter();
+        if(!(source instanceof Player)) return;
+
+        Player shooter = (Player) source;
+
+        ItemStack thrown = shooter.getInventory().getItemInMainHand();
+        if(!Item.Mame.equal(thrown)) return;
+
+        // 雪玉を豆に
+        Item.Mame.setMetadataToEntity(mame);
+    }
 
     // 雪玉が当たったときのイベント処理
     // 鬼なら遅く
@@ -44,11 +67,32 @@ public final class Setsubun extends JavaPlugin implements Listener {
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!running) return;
 
-//        if (event.getEntity() instanceof Player) {
-//            boolean pass = false;
-//        }
+        // who got hit
+        Entity hitEntity = event.getEntity();
+        if (!(hitEntity instanceof Player)) return;
+        Player hitPlayer = (Player) hitEntity;
 
+        // damager
+        Entity damagerEntity = event.getDamager();
+        if (damagerEntity.getType() != EntityType.SNOWBALL) return;
+        if (!Item.Mame.equal(damagerEntity)) return;
+        Projectile mame = (Projectile) damagerEntity;
 
+//        // shooter
+//        ProjectileSource shooterEntity = mame.getShooter();
+//        if(!(shooterEntity instanceof Player)) return;
+//        Player shooterPlayer = (Player) shooterEntity;
+
+        hitPlayer.sendMessage("豆が当たった");
+
+        // あたったのが鬼だった場合
+        if (oni.contains(hitPlayer.getName())) {
+            // 減速処理
+            return;
+        }
+
+        // あたったのがプレイヤーだった場合
+        // 加速処理
     }
 
     // ゲーム開始！
@@ -62,7 +106,7 @@ public final class Setsubun extends JavaPlugin implements Listener {
             }
         }
 
-        // NOTE: 鬼をちょっとだけはやく(optional)
+        // TODO: 鬼をちょっとだけはやく
         running = true;
     }
 
@@ -72,6 +116,8 @@ public final class Setsubun extends JavaPlugin implements Listener {
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.sendTitle(new Title("ゲーム終了", null, 5, 80, 5));
             p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 0.9f);
+
+            // TODO: エンチャントの効果を消す
         }
 
         if (task != null) {
@@ -91,13 +137,13 @@ public final class Setsubun extends JavaPlugin implements Listener {
 
         @Override
         public void run() {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.sendActionBar("残り " + String.valueOf(time) + "秒");
+            }
+
             if (time <= 0) {
                 Setsubun.plugin.stop();
                 return;
-            }
-
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.sendActionBar("残り " + String.valueOf(time) + "秒");
             }
 
             --time;
