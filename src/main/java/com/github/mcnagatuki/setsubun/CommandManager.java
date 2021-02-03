@@ -103,11 +103,71 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         if (args.length == 3 && same(args[0], "set") && same(args[1], "mame")) {
             try {
                 int amount = Integer.parseInt(args[2]);
-                Setsubun.plugin.mameAmount = amount;
+                Setsubun.plugin.config.mameAmount = amount;
             } catch (Exception ignore) {
                 return false;
             }
             sender.sendMessage("配布する豆の数を" + args[2] + "に設定しました。");
+            return true;
+        }
+
+        // 鬼のスピードの設定 set oni_speed <number>
+        if (args.length == 3 && same(args[0], "set") && same(args[1], "oni_speed")) {
+            try {
+                float amount = Float.parseFloat(args[2]);
+                Setsubun.plugin.config.oniSpeed = amount;
+            } catch (Exception ignore) {
+                return false;
+            }
+            sender.sendMessage("鬼の速さを" + args[2] + "に設定しました。");
+            return true;
+        }
+
+        // 鬼遅延時間の設定 set oni_potion_time <number>
+        if (args.length == 3 && same(args[0], "set") && same(args[1], "oni_potion_time")) {
+            try {
+                int amount = Integer.parseInt(args[2]);
+                Setsubun.plugin.config.oniPotionTime = amount;
+            } catch (Exception ignore) {
+                return false;
+            }
+            sender.sendMessage("鬼の低速化持続時間を" + args[2] + "に設定しました。");
+            return true;
+        }
+
+        // 鬼遅延強度の設定 set oni_potion_amp <number>
+        if (args.length == 3 && same(args[0], "set") && same(args[1], "oni_potion_amp")) {
+            try {
+                int amount = Integer.parseInt(args[2]);
+                Setsubun.plugin.config.oniPotionAmp = amount;
+            } catch (Exception ignore) {
+                return false;
+            }
+            sender.sendMessage("鬼の低速化強度を" + args[2] + "に設定しました。");
+            return true;
+        }
+
+        // プレイヤー加速時間の設定 set oni_potion_time <number>
+        if (args.length == 3 && same(args[0], "set") && same(args[1], "player_potion_time")) {
+            try {
+                int amount = Integer.parseInt(args[2]);
+                Setsubun.plugin.config.playerPotionTime = amount;
+            } catch (Exception ignore) {
+                return false;
+            }
+            sender.sendMessage("プレイヤー加速時間を" + args[2] + "に設定しました。");
+            return true;
+        }
+
+        // プレイヤー加速強度の設定 set oni_potion_amp <number>
+        if (args.length == 3 && same(args[0], "set") && same(args[1], "player_potion_amp")) {
+            try {
+                int amount = Integer.parseInt(args[2]);
+                Setsubun.plugin.config.playerPotionAmp = amount;
+            } catch (Exception ignore) {
+                return false;
+            }
+            sender.sendMessage("プレイヤー加速強度を" + args[2] + "に設定しました。");
             return true;
         }
 
@@ -187,12 +247,46 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         }
 
         if(args.length > 1 && same(args[0], "set")){
-            if(args.length == 2 && "mame".startsWith(args[1])){
-                result.add("mame");
+            if(args.length == 2){
+                if("mame".startsWith(args[1])){
+                    result.add("mame");
+                }
+                if("oni_speed".startsWith(args[1])){
+                    result.add("oni_speed");
+                }
+                if("oni_potion_time".startsWith(args[1])){
+                    result.add("oni_potion_time");
+                }
+                if("oni_potion_amp".startsWith(args[1])){
+                    result.add("oni_potion_amp");
+                }
+                if("player_potion_time".startsWith(args[1])){
+                    result.add("player_potion_time");
+                }
+                if("player_potion_amp".startsWith(args[1])){
+                    result.add("player_potion_amp");
+                }
             }
 
             if(args.length == 3){
-                result.add("64");
+                if("mame".startsWith(args[1])){
+                    result.add("64");
+                }
+                if("oni_speed".startsWith(args[1])){
+                    result.add("0.4");
+                }
+                if("oni_potion_time".startsWith(args[1])){
+                    result.add("20");
+                }
+                if("oni_potion_amp".startsWith(args[1])){
+                    result.add("1");
+                }
+                if("player_potion_time".startsWith(args[1])){
+                    result.add("40");
+                }
+                if("player_potion_amp".startsWith(args[1])){
+                    result.add("1");
+                }
             }
         }
 

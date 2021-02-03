@@ -1,19 +1,17 @@
 package com.github.mcnagatuki.setsubun;
 
 import com.destroystokyo.paper.Title;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -27,12 +25,14 @@ public final class Setsubun extends JavaPlugin implements Listener {
     public BukkitTask task = null;
     public List<Player> oni = new ArrayList<>();
     public Player gameMaster;
-    public int mameAmount = 64;
+    public Config config;
+
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         plugin = this;
+        config = new Config();
         getServer().getPluginManager().registerEvents(this, this);
         this.getCommand("setsubun").setExecutor(new CommandManager());
     }
@@ -48,21 +48,18 @@ public final class Setsubun extends JavaPlugin implements Listener {
 
         // 投げられたのが豆かどうか確認
         ProjectileSource source = mame.getShooter();
-        if(!(source instanceof Player)) return;
+        if (!(source instanceof Player)) return;
 
         Player shooter = (Player) source;
 
         ItemStack thrown = shooter.getInventory().getItemInMainHand();
-        if(!Item.Mame.equal(thrown)) return;
+        if (!Item.Mame.equal(thrown)) return;
 
         // 雪玉を豆に
         Item.Mame.setMetadataToEntity(mame);
     }
 
     // 雪玉が当たったときのイベント処理
-    // 鬼なら遅く
-    // 人なら早く？
-    // ダメージは？
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!running) return;
@@ -83,30 +80,39 @@ public final class Setsubun extends JavaPlugin implements Listener {
 //        if(!(shooterEntity instanceof Player)) return;
 //        Player shooterPlayer = (Player) shooterEntity;
 
-        hitPlayer.sendMessage("豆が当たった");
-
         // あたったのが鬼だった場合
-        if (oni.contains(hitPlayer.getName())) {
-            // 減速処理
+        if (oni.contains(hitPlayer)) {
+            // 鈍足のポ―ション効果を付与
+            PotionEffect effect = new PotionEffect(PotionEffectType.SLOW, config.oniPotionTime, config.oniPotionAmp);
+            hitPlayer.addPotionEffect(effect);
             return;
         }
 
         // あたったのがプレイヤーだった場合
-        // 加速処理
+        // 俊足のポーション効果を付与
+        PotionEffect effect = new PotionEffect(PotionEffectType.SPEED, config.playerPotionTime, config.playerPotionAmp);
+        hitPlayer.addPotionEffect(effect);
     }
 
     // ゲーム開始！
     public void start() {
+        if (running) return;
+
         // 金棒と豆の自動配布
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (oni.contains(p)) {
                 p.getInventory().addItem(Item.Kanabo.toItemStack());
+
+                // 鬼をちょっとだけはやく
+                p.setWalkSpeed(config.oniSpeed);
+
             } else {
-                p.getInventory().addItem(Item.Mame.toItemStack(mameAmount));
+                p.getInventory().addItem(Item.Mame.toItemStack(config.mameAmount));
             }
         }
 
-        // TODO: 鬼をちょっとだけはやく
+        getServer().broadcastMessage("豆まき開始！");
+
         running = true;
     }
 
@@ -117,7 +123,8 @@ public final class Setsubun extends JavaPlugin implements Listener {
             p.sendTitle(new Title("ゲーム終了", null, 5, 80, 5));
             p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 0.9f);
 
-            // TODO: エンチャントの効果を消す
+            // スピードを元に戻す
+            p.setWalkSpeed(0.2f);
         }
 
         if (task != null) {
@@ -126,6 +133,16 @@ public final class Setsubun extends JavaPlugin implements Listener {
         }
 
         running = false;
+    }
+
+    public class Config {
+        // changeable params
+        public int mameAmount = 64;
+        public float oniSpeed = 0.4f;
+        public int oniPotionAmp = 1;
+        public int oniPotionTime = 20;
+        public int playerPotionAmp = 1;
+        public int playerPotionTime = 40;
     }
 
     public static class Schedule extends BukkitRunnable {
