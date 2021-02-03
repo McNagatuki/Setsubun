@@ -238,7 +238,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
         if (args.length == 2 && (same(args[0], "add") || same(args[0], "del"))) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                result.add(p.getName());
+                String name = p.getName();
+                if(name.startsWith(args[1])) {
+                    result.add(p.getName());
+                }
             }
         }
 
@@ -270,22 +273,22 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
             if(args.length == 3){
                 if("mame".startsWith(args[1])){
-                    result.add("64");
+                    result.add(String.valueOf(Setsubun.plugin.config.mameAmount));
                 }
                 if("oni_speed".startsWith(args[1])){
-                    result.add("0.4");
+                    result.add(String.valueOf(Setsubun.plugin.config.oniSpeed));
                 }
                 if("oni_potion_time".startsWith(args[1])){
-                    result.add("20");
+                    result.add(String.valueOf(Setsubun.plugin.config.oniPotionTime));
                 }
                 if("oni_potion_amp".startsWith(args[1])){
-                    result.add("1");
+                    result.add(String.valueOf(Setsubun.plugin.config.oniPotionAmp));
                 }
                 if("player_potion_time".startsWith(args[1])){
-                    result.add("40");
+                    result.add(String.valueOf(Setsubun.plugin.config.playerPotionTime));
                 }
                 if("player_potion_amp".startsWith(args[1])){
-                    result.add("1");
+                    result.add(String.valueOf(Setsubun.plugin.config.playerPotionAmp));
                 }
             }
         }

@@ -33,16 +33,16 @@
   - set
     - mame <amount>  
       豆の配布数を設定  
-      (default: 64) 
+      (default: 256) 
     - oni_speed "0.0 ~ 1.0"  
       鬼の移動速度を設定（通常プレイヤーが0.2）  
       (default:0.4) 
     - oni_potion_time "ticks"  
       鬼の減速時間を設定  
-      (default: 20) 
+      (default: 60) 
     - oni_potion_amp "level"  
       鬼の原則度合いを設定  
-      (default: 1) 
+      (default: 3) 
     - player_potion_time "ticks"  
       プレイヤーの加速時間を設定  
       (default: 40) 

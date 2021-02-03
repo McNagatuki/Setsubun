@@ -137,10 +137,10 @@ public final class Setsubun extends JavaPlugin implements Listener {
 
     public class Config {
         // changeable params
-        public int mameAmount = 64;
-        public float oniSpeed = 0.4f;
-        public int oniPotionAmp = 1;
-        public int oniPotionTime = 20;
+        public int mameAmount = 256;
+        public float oniSpeed = 0.3f;
+        public int oniPotionAmp = 3;
+        public int oniPotionTime = 60;
         public int playerPotionAmp = 1;
         public int playerPotionTime = 40;
     }
